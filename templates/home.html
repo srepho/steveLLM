@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Home - LLM Web App{% endblock %}
+
+{% block content %}
+    <h1>Welcome to LLM Web App</h1>
+    <p>Ask a question and select an LLM model to get an answer.</p>
+    <form id="llm-form">
+        <div>
+            <label for="question">Question:</label>
+            <textarea id="question" name="question" required></textarea>
+        </div>
+        <div>
+            <label for="model">Select Model:</label>
+            <select id="model" name="model" required>
+                <option value="openai-gpt3.5">OpenAI GPT-3.5</option>
+                <option value="anthropic-claude">Anthropic Claude</option>
+                <option value="google-palm">Google PaLM</option>
+            </select>
+        </div>
+        <div>
+            <input type="submit" value="Ask" class="btn">
+        </div>
+    </form>
+    <div id="answer"></div>
+    <a href="{{ url_for('logout') }}" class="btn">Logout</a>
+
+    <script>
+        document.getElementById('llm-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            fetch('/ask', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('answer').innerHTML = `<p>Error: ${data.error}</p>`;
+                } else {
+                    document.getElementById('answer').innerHTML = `<p><strong>Answer:</strong> ${data.answer}</p>`;
+                }
+            })
+            .catch(error => {
+                document.getElementById('answer').innerHTML = `<p>Error: ${error.message}</p>`;
+            });
+        });
+    </script>
+{% endblock %}
